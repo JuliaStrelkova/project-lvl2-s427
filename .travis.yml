@@ -4,4 +4,6 @@ php:
   - '7.2'
   - '7.3'
 install: make install
-script: make lint
+script:
+  - make lint
+  - make test

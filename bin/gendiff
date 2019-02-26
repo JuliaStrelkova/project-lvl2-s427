@@ -2,8 +2,6 @@
 
 <?php
 
-use Gendiff\DiffGenApplication;
-
 $autoloadPath1 = __DIR__.'/../../../autoload.php';
 $autoloadPath2 = __DIR__.'/../vendor/autoload.php';
 
@@ -13,6 +11,22 @@ if (file_exists($autoloadPath1)) {
     require_once $autoloadPath2;
 }
 
-$diffGenerator = new DiffGenApplication();
+$doc = <<<HELP
+Generate diff
 
-$diffGenerator->run();
+Usage:
+  gendiff (-h|--help)
+  gendiff [--format <fmt>] <firstFile> <secondFile>
+
+Options:
+  -h --help                     Show this screen
+  --format <fmt>                Report format [default: pretty]
+
+HELP;
+
+$args = Docopt::handle($doc, ['version' => 'Generate diff 0.1.0']);
+
+
+$diffGenerator = new \Gendiff\DiffGenerator();
+
+echo $diffGenerator->genDiff($args['args']['<firstFile>'], $args['args']['<secondFile>']);
