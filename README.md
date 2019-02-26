@@ -3,4 +3,5 @@
 [![Build Status](https://travis-ci.org/JuliaStrelkova/project-lvl1-s252.svg?branch=master)](https://travis-ci.org/JuliaStrelkova/project-lvl2-s427)
 
 step 1: https://asciinema.org/a/8x4wDjVTg7Cv9LTkpDuuXmDvs
+
 step 2: https://asciinema.org/a/zRXFVy4E9RdNhknXlkRS7TBPe
