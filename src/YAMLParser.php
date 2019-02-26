@@ -1,16 +1,15 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Gendiff;
 
 use Symfony\Component\Yaml\Yaml;
 
 
-class YAMLParser implements Parser
+function parseYaml(string $pathToFile): array
 {
-    public function parse(string $pathToFile): array
-    {
-        $data = file_get_contents($pathToFile);
-        return Yaml::parse($data);
-    }
+    $data = file_get_contents($pathToFile);
+
+    return Yaml::parse($data);
 }
+

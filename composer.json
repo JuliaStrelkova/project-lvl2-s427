@@ -20,7 +20,9 @@
   },
   "scripts": {
     "phpcs": "phpcs",
-    "phpcbf": "phpcbf"
+    "phpcbf": "phpcbf",
+    "phpunit": "phpunit",
+    "test": "phpunit tests"
   },
   "bin": [
     "bin/gendiff"
@@ -28,7 +30,12 @@
   "autoload": {
     "psr-4": {
       "Gendiff\\": "src"
-    }
+    },
+    "files": [
+      "src/DiffGenerator.php",
+      "src/JSONParser.php",
+      "src/YAMLParser.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

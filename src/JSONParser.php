@@ -1,14 +1,13 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Gendiff;
 
 
-class JSONParser implements Parser
+function parseJson(string $pathToFile): array
 {
-    public function parse(string $pathToFile): array
-    {
-        $data = file_get_contents($pathToFile);
-        return json_decode($data, true);
-    }
+    $data = file_get_contents($pathToFile);
+
+    return json_decode($data, true);
 }
+

@@ -8,4 +8,4 @@ cs-fix:
 	composer run-script phpcbf -- --standard=PSR12 src bin tests
 
 test:
-	vendor/bin/phpunit -c phpunit.xml
+	composer run-script phpunit tests
