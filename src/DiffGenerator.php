@@ -3,16 +3,12 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
-
 class DiffGenerator
 {
     public function genDiff(string $pathToFile1, string $pathToFile2): string
     {
-        $file1 = file_get_contents($pathToFile1);
-        $file2 = file_get_contents($pathToFile2);
-
-        $firstDataSet = json_decode($file1, true);
-        $secondDataSet = json_decode($file2, true);
+        $firstDataSet = $this->getDataSet($pathToFile1);
+        $secondDataSet = $this->getDataSet($pathToFile2);
 
         $keysOfFirstDataSet = array_keys($firstDataSet);
         $keysOfSecondDataSet = array_keys($secondDataSet);
@@ -73,5 +69,21 @@ class DiffGenerator
         );
 
         return $result . '}';
+    }
+
+    private function getDataSet(string $path): array
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if ($extension === 'json') {
+            $parser = new JSONParser();
+            return $parser->parse($path);
+        }
+
+        if ($extension === 'yaml') {
+            $parser = new YAMLParser();
+            return $parser->parse($path);
+        }
+        return [];
     }
 }
