@@ -45,10 +45,10 @@ function render(?array $data): string
                     function ($acc, $keyInterior) use ($item) {
                         return $acc . render(
                             [
-                                    'state' => 'notChanged',
-                                    'key' => $keyInterior,
-                                    'oldValue' => $item['newValue'][$keyInterior],
-                                ]
+                                'state' => 'notChanged',
+                                'key' => $keyInterior,
+                                'oldValue' => $item['newValue'][$keyInterior],
+                            ]
                         ) . PHP_EOL;
                     },
                     $acc
