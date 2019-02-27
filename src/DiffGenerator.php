@@ -3,82 +3,33 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
+use Symfony\Component\Yaml\Yaml;
+
+
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
     $firstDataSet = getDataSet($pathToFile1);
     $secondDataSet = getDataSet($pathToFile2);
 
-    $keysOfFirstDataSet = array_keys($firstDataSet);
-    $keysOfSecondDataSet = array_keys($secondDataSet);
-
-    $result = array_reduce(
-        $keysOfFirstDataSet,
-        function ($acc, $key) use ($firstDataSet, $keysOfSecondDataSet, $secondDataSet) {
-            if (!in_array($key, $keysOfSecondDataSet, true)) {
-                $acc['- ' . $key] = $firstDataSet[$key];
-
-                return $acc;
-            }
-
-            if ($firstDataSet[$key] !== $secondDataSet[$key]) {
-                $acc['+ ' . $key] = $secondDataSet[$key];
-                $acc['- ' . $key] = $firstDataSet[$key];
-
-                return $acc;
-            }
-            $acc['  ' . $key] = $firstDataSet[$key];
-
-            return $acc;
-        },
-        []
-    );
-
-    $result = array_reduce(
-        $keysOfSecondDataSet,
-        function ($acc, $key) use ($keysOfFirstDataSet, $secondDataSet) {
-            if (!in_array($key, $keysOfFirstDataSet, true)) {
-                $acc['+ ' . $key] = $secondDataSet[$key];
-            }
-
-            return $acc;
-        },
-        $result
-    );
-
-    return render($result);
+    return render(buildAst($firstDataSet, $secondDataSet));
 }
 
-function render(array $data): string
+function getDataSet(string $pathToFile)
 {
-    $result = '{' . PHP_EOL;
+    $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
+    $data = file_get_contents($pathToFile);
 
-    $result = array_reduce(
-        array_keys($data),
-        function ($acc, $key) use ($data) {
-            $value = $data[$key];
-            if (is_bool($data[$key])) {
-                $value = $data[$key] ? 'true' : 'false';
-            }
-            $acc .= "  {$key}: {$value}" . PHP_EOL;
-
-            return $acc;
-        },
-        $result
-    );
-
-    return $result . '}';
+    return parser($data, $extension);
 }
 
-function getDataSet(string $path): array
+function parser(string $data, string $format): array
 {
-    $extension = pathinfo($path, PATHINFO_EXTENSION);
-
-    if ($extension === 'json') {
-        return parseJson($path);
+    if ($format === 'json') {
+        return json_decode($data, true);
     }
 
-    if ($extension === 'yaml') {
-        return parseYaml($path);
+    if ($format === 'yaml') {
+        return Yaml::parse($data);
     }
 
     return [];
