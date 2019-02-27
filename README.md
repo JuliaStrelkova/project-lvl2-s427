@@ -7,3 +7,5 @@ step 1: https://asciinema.org/a/8x4wDjVTg7Cv9LTkpDuuXmDvs
 step 2: https://asciinema.org/a/zRXFVy4E9RdNhknXlkRS7TBPe
 
 step 3:  https://asciinema.org/a/4ISzdOndjPNEUS4wYUX2TG0bm
+
+step 2 with fixes: https://asciinema.org/a/bHPgSDc7Kozls1S2ipbZVpjHj
