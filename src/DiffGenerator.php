@@ -83,4 +83,3 @@ function getDataSet(string $path): array
 
     return [];
 }
-

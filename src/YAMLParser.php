@@ -12,4 +12,3 @@ function parseYaml(string $pathToFile): array
 
     return Yaml::parse($data);
 }
-

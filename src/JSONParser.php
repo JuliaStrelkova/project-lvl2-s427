@@ -10,4 +10,3 @@ function parseJson(string $pathToFile): array
 
     return json_decode($data, true);
 }
-
