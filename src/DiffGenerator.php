@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
+use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
 
@@ -32,5 +33,5 @@ function parser(string $data, string $format): array
         return Yaml::parse($data);
     }
 
-    return [];
+    throw new RuntimeException('Unexpected data format');
 }

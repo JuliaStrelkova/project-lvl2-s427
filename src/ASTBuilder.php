@@ -4,64 +4,96 @@ declare(strict_types=1);
 namespace Gendiff;
 
 use function Funct\Collection\union;
-const KEY_STATE = 'state';
-const KEY = 'key';
-const KEY_OLD_VALUE = 'oldValue';
-const KEY_NEW_VALUE = 'newValue';
-const STATE_DELETE = 'deleted';
+
+const STATE_DELETED = 'deleted';
 const STATE_ADDED = 'added';
 const STATE_CHANGED = 'changed';
-const STATE_UNCHANGED = 'unChanged';
+const STATE_UNCHANGED = 'unchanged';
 
-function buildAst($firstDataSet, $secondDataSet)
+function buildAst(array $firstDataSet, array $secondDataSet)
 {
     $keysOfFirstDataSet = array_keys($firstDataSet);
     $keysOfSecondDataSet = array_keys($secondDataSet);
 
     $keysFirstAndSecondDataSet = union($keysOfFirstDataSet, $keysOfSecondDataSet);
 
-    $result = array_map(
+    return array_map(
         function ($key) use ($firstDataSet, $secondDataSet) {
+
             if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
+                if (is_array($firstDataSet[$key]) && ($firstDataSet[$key] === $secondDataSet[$key])) {
+                    return [
+                        'state' => STATE_UNCHANGED,
+                        'key' => $key,
+                        'oldValue' => buildNestedAst($firstDataSet[$key])
+                    ];
+                }
                 if ($firstDataSet[$key] === $secondDataSet[$key]) {
                     return [
-                        KEY_STATE => STATE_UNCHANGED,
-                        KEY => $key,
-                        KEY_OLD_VALUE => $firstDataSet[$key],
+                        'state' => STATE_UNCHANGED,
+                        'key' => $key,
+                        'oldValue' => $firstDataSet[$key]
                     ];
                 }
 
                 if (!is_array($firstDataSet[$key]) && !is_array($secondDataSet[$key])) {
                     return [
-                        KEY_STATE => STATE_CHANGED,
-                        KEY => $key,
-                        KEY_OLD_VALUE => $firstDataSet[$key],
-                        KEY_NEW_VALUE => $secondDataSet[$key],
+                        'state' => STATE_CHANGED,
+                        'key' => $key,
+                        'oldValue' => $firstDataSet[$key],
+                        'newValue' => $secondDataSet[$key],
                     ];
                 }
 
                 return [
-                    KEY_STATE => STATE_CHANGED,
-                    KEY => $key,
-                    KEY_NEW_VALUE => buildAst($firstDataSet[$key], $secondDataSet[$key]),
-                ];
-            }
-            if (array_key_exists($key, $firstDataSet)) {
-                return [
-                    KEY_STATE => STATE_DELETE,
-                    KEY => $key,
-                    KEY_OLD_VALUE => $firstDataSet[$key],
+                    'state' => STATE_UNCHANGED,
+                    'key' => $key,
+                    'oldValue' => buildAst($firstDataSet[$key], $secondDataSet[$key]),
                 ];
             }
 
+            if (array_key_exists($key, $firstDataSet)) {
+                if (is_array($firstDataSet[$key])) {
+                    return [
+                        'state' => STATE_DELETED,
+                        'key' => $key,
+                        'oldValue' => buildNestedAst($firstDataSet[$key])
+                    ];
+                }
+                return [
+                    'state' => STATE_DELETED,
+                    'key' => $key,
+                    'oldValue' => $firstDataSet[$key],
+                ];
+            }
+            if (is_array($secondDataSet[$key])) {
+                return [
+                    'state' => STATE_ADDED,
+                    'key' => $key,
+                    'newValue' => buildNestedAst($secondDataSet[$key])
+                ];
+            }
             return [
-                KEY_STATE => STATE_ADDED,
-                KEY => $key,
-                KEY_NEW_VALUE => $secondDataSet[$key],
+                'state' => STATE_ADDED,
+                'key' => $key,
+                'newValue' => $secondDataSet[$key],
             ];
         },
         $keysFirstAndSecondDataSet
     );
+}
 
-    return $result;
+function buildNestedAst(array $data): array
+{
+    $keys = array_keys($data);
+    return array_map(function ($key) use ($data) {
+        if (is_array($data[$key])) {
+            return buildNestedAst($data[$key]);
+        }
+        return [
+           'state' => STATE_UNCHANGED,
+           'key' => $key,
+           'oldValue' => $data[$key]
+        ];
+    }, $keys);
 }
