@@ -11,43 +11,43 @@ function render(?array $data): string
     $result = array_reduce(
         $data,
         function ($acc, $item) {
-            if ($item['state'] === 'notChanged') {
-                if (!is_array($item['oldValue'])) {
-                    return $acc . '    ' . $item['key'] . ': ' . renderScalarValue($item['oldValue']) . PHP_EOL;
+            if ($item[KEY_STATE] === STATE_UNCHANGED) {
+                if (!is_array($item[KEY_OLD_VALUE])) {
+                    return $acc . '    ' . $item[KEY] . ': ' . renderScalarValue($item[KEY_OLD_VALUE]) . PHP_EOL;
                 }
 
-                return $acc . '    ' . $item['key'] . ': ' . render($item['oldValue']) . PHP_EOL;
+                return $acc . '    ' . $item[KEY] . ': ' . render($item[KEY_OLD_VALUE]) . PHP_EOL;
             }
-            if ($item['state'] === 'changed') {
-                if (isset($item['oldValue'])) {
+            if ($item[KEY_STATE] === STATE_CHANGED) {
+                if (isset($item[KEY_OLD_VALUE])) {
                     return $acc
-                        . '  + ' . $item['key'] . ': ' . renderScalarValue($item['newValue']) . PHP_EOL
-                        . '  - ' . $item['key'] . ': ' . renderScalarValue($item['oldValue']) . PHP_EOL;
+                        . '  + ' . $item[KEY] . ': ' . renderScalarValue($item[KEY_NEW_VALUE]) . PHP_EOL
+                        . '  - ' . $item[KEY] . ': ' . renderScalarValue($item[KEY_OLD_VALUE]) . PHP_EOL;
                 }
 
-                return $acc . '    ' . $item['key'] . ': ' . render($item['newValue']);
+                return $acc . '    ' . $item[KEY] . ': ' . render($item[KEY_NEW_VALUE]);
             }
-            if ($item['state'] === 'deleted') {
-                if (!is_array($item['oldValue'])) {
-                    return $acc . '  - ' . $item['key'] . ': ' . renderScalarValue($item['oldValue']) . PHP_EOL;
+            if ($item[KEY_STATE] === STATE_DELETE) {
+                if (!is_array($item[KEY_OLD_VALUE])) {
+                    return $acc . '  - ' . $item[KEY] . ': ' . renderScalarValue($item[KEY_OLD_VALUE]) . PHP_EOL;
                 }
 
-                return $acc . '  - ' . $item['key'] . ': ' . render($item['oldValue']) . PHP_EOL;
+                return $acc . '  - ' . $item[KEY] . ': ' . render($item[KEY_OLD_VALUE]) . PHP_EOL;
             }
-            if ($item['state'] === 'added') {
-                if (!is_array($item['newValue'])) {
-                    return $acc . '  + ' . $item['key'] . ': ' . renderScalarValue($item['newValue']) . PHP_EOL;
+            if ($item[KEY_STATE] === STATE_ADDED) {
+                if (!is_array($item[KEY_NEW_VALUE])) {
+                    return $acc . '  + ' . $item[KEY] . ': ' . renderScalarValue($item[KEY_NEW_VALUE]) . PHP_EOL;
                 }
-                $acc = $acc . '  + ' . $item['key'];
+                $acc = $acc . '  + ' . $item[KEY];
                 array_reduce(
-                    array_keys($item['newValue']),
+                    array_keys($item[KEY_NEW_VALUE]),
                     function ($acc, $keyInterior) use ($item) {
                         return $acc . render(
                             [
-                                'state' => 'notChanged',
-                                'key' => $keyInterior,
-                                'oldValue' => $item['newValue'][$keyInterior],
-                            ]
+                                    KEY_STATE => STATE_UNCHANGED,
+                                    KEY => $keyInterior,
+                                    KEY_OLD_VALUE => $item[KEY_NEW_VALUE][$keyInterior],
+                                ]
                         ) . PHP_EOL;
                     },
                     $acc
