@@ -13,3 +13,5 @@ step 2 with fixes: https://asciinema.org/a/bHPgSDc7Kozls1S2ipbZVpjHj
 step 2 with fixes: https://asciinema.org/a/MuHNXUFvOnnlxXEmagl18PnM1
 
 step 4: https://asciinema.org/a/nbKIEUb5jmhUZAF9odpBWdcQ4
+
+step 4 with fixes: https://asciinema.org/a/VHyuw0pRe7SXoxLqgi0YtP0gH
