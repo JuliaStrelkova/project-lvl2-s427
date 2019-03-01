@@ -6,12 +6,12 @@ namespace Gendiff;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
-
 function genDiff(string $pathToFile1, string $pathToFile2, string $format): string
 {
     $firstDataSet = getDataSet($pathToFile1);
     $secondDataSet = getDataSet($pathToFile2);
     $ast = buildAst($firstDataSet, $secondDataSet);
+
     return render($ast, $format);
 }
 

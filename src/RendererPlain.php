@@ -2,23 +2,23 @@
 declare(strict_types=1);
 
 namespace Gendiff;
-use RuntimeException;
 
+use RuntimeException;
 
 function renderPlain(?array $data): string
 {
     return array_reduce(
         $data,
-        function ($acc, $item) {
+        function (string $acc, array $item) {
             if ($item['type'] === STATE_UNCHANGED && is_array($item['oldValue'])) {
-                $beginString = "Property ' " . "{$item['key']}.";
+                $beginString = "Property ' {$item['key']}.";
+
                 return $acc . array_reduce(
                     $item['oldValue'],
                     function ($acc, $nestedItem) use ($beginString) {
                         if ($nestedItem['state'] === STATE_CHANGED) {
-                            return $acc . $beginString . "{$nestedItem['key']}'"
-                                . "was changed. From '{$nestedItem['oldValue']}' to '{$nestedItem['newValue']}'"
-                                . PHP_EOL;
+                            return "$acc $beginString {$nestedItem['key']}' was changed. " .
+                                "From '{$nestedItem['oldValue']}' to '{$nestedItem['newValue']}'" . PHP_EOL;
                         }
                         if ($nestedItem['state'] === STATE_DELETED) {
                             return $acc . $beginString . "{$nestedItem['key']}'"
@@ -35,7 +35,7 @@ function renderPlain(?array $data): string
                         if ($nestedItem['state'] === STATE_UNCHANGED) {
                             return '';
                         }
-                        throw new RuntimeException('Unexpected state value');
+                            throw new RuntimeException('Unexpected state value');
                     },
                     ''
                 );
