@@ -10,7 +10,7 @@ function renderPlain(?array $data): string
     return array_reduce(
         $data,
         function ($acc, $item) {
-            if ($item['state'] === STATE_UNCHANGED && is_array($item['oldValue'])) {
+            if ($item['type'] === STATE_UNCHANGED && is_array($item['oldValue'])) {
                 $beginString = "Property ' " . "{$item['key']}.";
                 return $acc . array_reduce(
                     $item['oldValue'],
@@ -40,22 +40,22 @@ function renderPlain(?array $data): string
                     ''
                 );
             }
-            if ($item['state'] === STATE_CHANGED) {
+            if ($item['type'] === STATE_CHANGED) {
                 return $acc .
                     "Property '{$item['key']}' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
                     . PHP_EOL;
             }
-            if ($item['state'] === STATE_DELETED) {
+            if ($item['type'] === STATE_DELETED) {
                 return $acc . "Property '{$item['key']}' was removed" . PHP_EOL;
             }
-            if ($item['state'] === STATE_ADDED && is_array($item['newValue'])) {
+            if ($item['type'] === STATE_ADDED && is_array($item['newValue'])) {
                 return $acc . "Property '{$item['key']}' was added with value: 'complex value'" . PHP_EOL;
             }
-            if ($item['state'] === STATE_ADDED) {
+            if ($item['type'] === STATE_ADDED) {
                 return $acc . "Property '{$item['key']}'"
                     . "was added with value: '{$item['newValue']}'" . PHP_EOL;
             }
-            if ($item['state'] === STATE_UNCHANGED) {
+            if ($item['type'] === STATE_UNCHANGED) {
                 return '';
             }
             throw new RuntimeException('Unexpected state value');

@@ -13,7 +13,7 @@ function renderPretty(?array $data, int $level = 1): string
     $result = array_reduce(
         $data,
         function ($acc, $item) use ($level) {
-            if ($item['state'] === STATE_UNCHANGED) {
+            if ($item['type'] === STATE_UNCHANGED) {
                 if (!isset($item['oldValue'])) {
                     return $acc . renderIndentation($level) . $item['key']
                         . ': ' . renderPretty($item['children'], $level + 1) . PHP_EOL;
@@ -23,7 +23,7 @@ function renderPretty(?array $data, int $level = 1): string
                     . ': ' . renderScalarValue($item['oldValue']) . PHP_EOL;
             }
 
-            if ($item['state'] === STATE_CHANGED) {
+            if ($item['type'] === STATE_CHANGED) {
                 if (isset($item['oldValue'])) {
                     return $acc
                         . renderIndentation($level, '  + ') . $item['key']
@@ -36,7 +36,7 @@ function renderPretty(?array $data, int $level = 1): string
                     . ': ' . renderPretty($item['children'], $level + 1);
             }
 
-            if ($item['state'] === STATE_DELETED) {
+            if ($item['type'] === STATE_DELETED) {
                 if (!isset($item['oldValue'])) {
                     return $acc . renderIndentation($level, '  - ') . $item['key']
                         . ': ' . renderArray($item['children'], $level + 1) . PHP_EOL;
@@ -46,7 +46,7 @@ function renderPretty(?array $data, int $level = 1): string
                     . ': ' . renderScalarValue($item['oldValue']) . PHP_EOL;
             }
 
-            if ($item['state'] === STATE_ADDED) {
+            if ($item['type'] === STATE_ADDED) {
                 if (!isset($item['newValue'])) {
                     return $acc . renderIndentation($level, '  + ') . $item['key']
                         . ': ' . renderArray($item['children'], $level + 1) . PHP_EOL;

@@ -23,14 +23,14 @@ function buildAst(array $firstDataSet, array $secondDataSet)
             if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
                 if (is_array($firstDataSet[$key]) && ($firstDataSet[$key] === $secondDataSet[$key])) {
                     return [
-                        'state' => STATE_UNCHANGED,
+                        'type' => STATE_UNCHANGED,
                         'key' => $key,
                         'children' => $firstDataSet[$key]
                     ];
                 }
                 if ($firstDataSet[$key] === $secondDataSet[$key]) {
                     return [
-                        'state' => STATE_UNCHANGED,
+                        'type' => STATE_UNCHANGED,
                         'key' => $key,
                         'oldValue' => $firstDataSet[$key]
                     ];
@@ -38,7 +38,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
 
                 if (!is_array($firstDataSet[$key]) && !is_array($secondDataSet[$key])) {
                     return [
-                        'state' => STATE_CHANGED,
+                        'type' => STATE_CHANGED,
                         'key' => $key,
                         'oldValue' => $firstDataSet[$key],
                         'newValue' => $secondDataSet[$key],
@@ -46,7 +46,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
                 }
 
                 return [
-                    'state' => STATE_UNCHANGED,
+                    'type' => STATE_UNCHANGED,
                     'key' => $key,
                     'children' => buildAst($firstDataSet[$key], $secondDataSet[$key]),
                 ];
@@ -55,26 +55,26 @@ function buildAst(array $firstDataSet, array $secondDataSet)
             if (array_key_exists($key, $firstDataSet)) {
                 if (is_array($firstDataSet[$key])) {
                     return [
-                        'state' => STATE_DELETED,
+                        'type' => STATE_DELETED,
                         'key' => $key,
                         'children' => $firstDataSet[$key]
                     ];
                 }
                 return [
-                    'state' => STATE_DELETED,
+                    'type' => STATE_DELETED,
                     'key' => $key,
                     'oldValue' => $firstDataSet[$key],
                 ];
             }
             if (is_array($secondDataSet[$key])) {
                 return [
-                    'state' => STATE_ADDED,
+                    'type' => STATE_ADDED,
                     'key' => $key,
                     'children' => $secondDataSet[$key]
                 ];
             }
             return [
-                'state' => STATE_ADDED,
+                'type' => STATE_ADDED,
                 'key' => $key,
                 'newValue' => $secondDataSet[$key],
             ];
