@@ -6,7 +6,7 @@ namespace Gendiff;
 
 use RuntimeException;
 
-function render(?array $data, int $level = 1): string
+function renderPretty(?array $data, int $level = 1): string
 {
     $result = '{' . PHP_EOL;
 
@@ -14,9 +14,9 @@ function render(?array $data, int $level = 1): string
         $data,
         function ($acc, $item) use ($level) {
             if ($item['state'] === STATE_UNCHANGED) {
-                if (is_array($item['oldValue'])) {
+                if (!isset($item['oldValue'])) {
                     return $acc . renderIndentation($level) . $item['key']
-                        . ': ' . render($item['oldValue'], $level + 1) . PHP_EOL;
+                        . ': ' . renderPretty($item['children'], $level + 1) . PHP_EOL;
                 }
 
                 return $acc . renderIndentation($level) . $item['key']
@@ -33,13 +33,13 @@ function render(?array $data, int $level = 1): string
                 }
 
                 return $acc . renderIndentation($level) . $item['key']
-                    . ': ' . render($item['newValue'], $level + 1);
+                    . ': ' . renderPretty($item['children'], $level + 1);
             }
 
             if ($item['state'] === STATE_DELETED) {
-                if (is_array($item['oldValue'])) {
+                if (!isset($item['oldValue'])) {
                     return $acc . renderIndentation($level, '  - ') . $item['key']
-                        . ': ' . render($item['oldValue'], $level + 1) . PHP_EOL;
+                        . ': ' . renderArray($item['children'], $level + 1) . PHP_EOL;
                 }
 
                 return $acc . renderIndentation($level, '  - ') . $item['key']
@@ -47,9 +47,9 @@ function render(?array $data, int $level = 1): string
             }
 
             if ($item['state'] === STATE_ADDED) {
-                if (is_array($item['newValue'])) {
+                if (!isset($item['newValue'])) {
                     return $acc . renderIndentation($level, '  + ') . $item['key']
-                        . ': ' . render($item['newValue'], $level + 1) . PHP_EOL;
+                        . ': ' . renderArray($item['children'], $level + 1) . PHP_EOL;
                 }
 
                 return $acc . renderIndentation($level, '  + ') . $item['key']
@@ -76,4 +76,13 @@ function renderScalarValue($value): string
     }
 
     return (string)$value;
+}
+
+function renderArray(array $data, $level): string
+{
+    $keys = array_keys($data);
+    return array_reduce($keys, function ($acc, $key) use ($data, $level) {
+        return $acc .  '{' . PHP_EOL . renderIndentation($level) . $key . ': '
+            . $data[$key] . PHP_EOL . renderIndentation($level - 1) . '}';
+    }, '');
 }

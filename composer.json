@@ -35,7 +35,8 @@
     "files": [
       "src/DiffGenerator.php",
       "src/ASTBuilder.php",
-      "src/Renderer.php"
+      "src/RendererPretty.php",
+      "src/RendererPlain.php"
     ]
   },
   "autoload-dev": {

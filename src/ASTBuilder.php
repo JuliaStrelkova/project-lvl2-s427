@@ -25,7 +25,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
                     return [
                         'state' => STATE_UNCHANGED,
                         'key' => $key,
-                        'oldValue' => buildNestedAst($firstDataSet[$key])
+                        'children' => $firstDataSet[$key]
                     ];
                 }
                 if ($firstDataSet[$key] === $secondDataSet[$key]) {
@@ -48,7 +48,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
                 return [
                     'state' => STATE_UNCHANGED,
                     'key' => $key,
-                    'oldValue' => buildAst($firstDataSet[$key], $secondDataSet[$key]),
+                    'children' => buildAst($firstDataSet[$key], $secondDataSet[$key]),
                 ];
             }
 
@@ -57,7 +57,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
                     return [
                         'state' => STATE_DELETED,
                         'key' => $key,
-                        'oldValue' => buildNestedAst($firstDataSet[$key])
+                        'children' => $firstDataSet[$key]
                     ];
                 }
                 return [
@@ -70,7 +70,7 @@ function buildAst(array $firstDataSet, array $secondDataSet)
                 return [
                     'state' => STATE_ADDED,
                     'key' => $key,
-                    'newValue' => buildNestedAst($secondDataSet[$key])
+                    'children' => $secondDataSet[$key]
                 ];
             }
             return [
@@ -81,19 +81,4 @@ function buildAst(array $firstDataSet, array $secondDataSet)
         },
         $keysFirstAndSecondDataSet
     );
-}
-
-function buildNestedAst(array $data): array
-{
-    $keys = array_keys($data);
-    return array_map(function ($key) use ($data) {
-        if (is_array($data[$key])) {
-            return buildNestedAst($data[$key]);
-        }
-        return [
-           'state' => STATE_UNCHANGED,
-           'key' => $key,
-           'oldValue' => $data[$key]
-        ];
-    }, $keys);
 }

@@ -7,12 +7,23 @@ use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
 
-function genDiff(string $pathToFile1, string $pathToFile2): string
+function genDiff(string $pathToFile1, string $pathToFile2, string $format): string
 {
     $firstDataSet = getDataSet($pathToFile1);
     $secondDataSet = getDataSet($pathToFile2);
+    $ast = buildAst($firstDataSet, $secondDataSet);
+    return render($ast, $format);
+}
 
-    return render(buildAst($firstDataSet, $secondDataSet));
+function render(array $ast, string $format): string
+{
+    if ($format === 'pretty') {
+        return renderPretty($ast);
+    }
+    if ($format === 'plain') {
+        return renderPlain($ast);
+    }
+    throw new RuntimeException('Unexpected data format');
 }
 
 function getDataSet(string $pathToFile)
