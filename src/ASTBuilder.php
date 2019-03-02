@@ -33,13 +33,14 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
                 return buildNode(CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
             }
 
-            if (array_key_exists($key, $firstDataSet)) {
+            if (!array_key_exists($key, $secondDataSet)) {
                 if (is_array($firstDataSet[$key])) {
                     return buildNode(DELETED, $key, null, null, $firstDataSet[$key]);
                 }
 
                 return buildNode(DELETED, $key, $firstDataSet[$key]);
             }
+
             if (is_array($secondDataSet[$key])) {
                 return buildNode(ADDED, $key, null, null, $secondDataSet[$key]);
             }
