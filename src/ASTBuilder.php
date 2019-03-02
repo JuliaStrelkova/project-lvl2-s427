@@ -16,25 +16,21 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
         function (string $key) use ($firstDataSet, $secondDataSet) {
 
             if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
-                if (is_array($firstDataSet[$key]) && ($firstDataSet[$key] === $secondDataSet[$key])) {
-                    return buildNode(UNCHANGED, $key, null, null, $firstDataSet[$key]);
+                if (is_array($firstDataSet[$key])) {
+                    return buildNode(
+                        UNCHANGED,
+                        $key,
+                        null,
+                        null,
+                        buildAst($firstDataSet[$key], $secondDataSet[$key])
+                    );
                 }
 
                 if ($firstDataSet[$key] === $secondDataSet[$key]) {
                     return buildNode(UNCHANGED, $key, $firstDataSet[$key]);
                 }
 
-                if (!is_array($firstDataSet[$key]) && !is_array($secondDataSet[$key])) {
-                    return buildNode(CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
-                }
-
-                return buildNode(
-                    UNCHANGED,
-                    $key,
-                    null,
-                    null,
-                    buildAst($firstDataSet[$key], $secondDataSet[$key])
-                );
+                return buildNode(CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
             }
 
             if (array_key_exists($key, $firstDataSet)) {
