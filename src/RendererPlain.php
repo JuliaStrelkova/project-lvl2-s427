@@ -10,36 +10,38 @@ function renderPlain(?array $data): string
     return array_reduce(
         $data,
         function (string $acc, array $item) {
-            if ($item['type'] === STATE_UNCHANGED && is_array($item['oldValue'])) {
-                $beginString = "Property ' {$item['key']}.";
+            if ($item['type'] === STATE_UNCHANGED && !isset($item['oldValue'])) {
+                $beginString = "Property '{$item['key']}.";
 
                 return $acc . array_reduce(
-                    $item['oldValue'],
+                    $item['children'],
                     function ($acc, $nestedItem) use ($beginString) {
-                        if ($nestedItem['state'] === STATE_CHANGED) {
-                            return "$acc $beginString {$nestedItem['key']}' was changed. " .
+                        if ($nestedItem['type'] === STATE_CHANGED) {
+                            return "$acc$beginString{$nestedItem['key']}' was changed. " .
                                 "From '{$nestedItem['oldValue']}' to '{$nestedItem['newValue']}'" . PHP_EOL;
                         }
-                        if ($nestedItem['state'] === STATE_DELETED) {
-                            return $acc . $beginString . "{$nestedItem['key']}'"
-                                . 'was removed' . PHP_EOL;
+                        if ($nestedItem['type'] === STATE_DELETED) {
+                            return "$acc$beginString{$nestedItem['key']}' was removed" . PHP_EOL;
                         }
-                        if ($nestedItem['state'] === STATE_ADDED && is_array($nestedItem['newValue'])) {
-                            return $acc . $beginString . "{$nestedItem['key']}'"
-                                . 'was added with value: \'complex value\'' . PHP_EOL;
+                        if ($nestedItem['type'] === STATE_ADDED && !isset($nestedItem['newValue'])) {
+                            return "$acc$beginString{$nestedItem['key']}' was added with value: 'complex value'"
+                                . PHP_EOL;
                         }
-                        if ($nestedItem['state'] === STATE_ADDED) {
-                            return $acc . $beginString . "{$nestedItem['key']}'"
-                                . "was added with value: '{$nestedItem['newValue']}'" . PHP_EOL;
+                        if ($nestedItem['type'] === STATE_ADDED) {
+                            return "$acc$beginString{$nestedItem['key']}' " .
+                                "was added with value: '{$nestedItem['newValue']}'"
+                                . PHP_EOL;
                         }
-                        if ($nestedItem['state'] === STATE_UNCHANGED) {
-                            return '';
+                        if ($nestedItem['type'] === STATE_UNCHANGED) {
+                            return (string) $acc;
                         }
+
                             throw new RuntimeException('Unexpected state value');
                     },
                     ''
                 );
             }
+
             if ($item['type'] === STATE_CHANGED) {
                 return $acc .
                     "Property '{$item['key']}' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
@@ -48,7 +50,7 @@ function renderPlain(?array $data): string
             if ($item['type'] === STATE_DELETED) {
                 return $acc . "Property '{$item['key']}' was removed" . PHP_EOL;
             }
-            if ($item['type'] === STATE_ADDED && is_array($item['newValue'])) {
+            if ($item['type'] === STATE_ADDED && !isset($item['newValue'])) {
                 return $acc . "Property '{$item['key']}' was added with value: 'complex value'" . PHP_EOL;
             }
             if ($item['type'] === STATE_ADDED) {

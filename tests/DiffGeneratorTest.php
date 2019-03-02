@@ -38,10 +38,10 @@ class DiffGeneratorTest extends TestCase
         $this->assertEquals($expected, $diff);
     }
 
-//    public function testGenDiffOfFlatNestedPlainJson(): void
-//    {
-//        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.json', __DIR__ . '/fixtures/nestedAfter.json', 'plain');
-//        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResultPlain');
-//        $this->assertEquals($expected, $diff);
-//    }
+    public function testGenDiffOfFlatNestedPlainJson(): void
+    {
+        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.json', __DIR__ . '/fixtures/nestedAfter.json', 'plain');
+        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResultPlain');
+        $this->assertEquals($expected, $diff);
+    }
 }
