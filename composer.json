@@ -12,8 +12,7 @@
     "php": "^7.1",
     "ext-json": "*",
     "docopt/docopt": "^1.0",
-    "symfony/yaml": "^4.2",
-    "funct/funct": "^1.5"
+    "symfony/yaml": "^4.2"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.2",

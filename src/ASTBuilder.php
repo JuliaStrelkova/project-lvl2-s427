@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
-use function Funct\Collection\union;
-
 const STATE_DELETED = 'deleted';
 const STATE_ADDED = 'added';
 const STATE_CHANGED = 'changed';
@@ -12,10 +10,7 @@ const STATE_UNCHANGED = 'unchanged';
 
 function buildAst(array $firstDataSet, array $secondDataSet): array
 {
-    $keysOfFirstDataSet = array_keys($firstDataSet);
-    $keysOfSecondDataSet = array_keys($secondDataSet);
-
-    $keysFirstAndSecondDataSet = union($keysOfFirstDataSet, $keysOfSecondDataSet);
+    $keysFirstAndSecondDataSet = getUniqueKeys($firstDataSet, $secondDataSet);
 
     return array_map(
         function (string $key) use ($firstDataSet, $secondDataSet) {
@@ -68,4 +63,13 @@ function buildNode(string $type, string $key, $oldValue = null, $newValue = null
         'oldValue' => $oldValue,
         'children' => $children,
     ];
+}
+
+function getUniqueKeys(array $firstDataSet, array $secondDataSet): array
+{
+    return array_values(
+        array_unique(
+            array_merge(array_keys($firstDataSet), array_keys($secondDataSet))
+        )
+    );
 }

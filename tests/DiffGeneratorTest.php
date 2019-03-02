@@ -51,18 +51,18 @@ class DiffGeneratorTest extends TestCase
         $expected = file_get_contents(__DIR__ . '/fixtures/nestedResultPlain');
         $this->assertEquals($expected, $diff);
     }
-//
-//    public function testGenDiffOfNestedJsonToJsonFormat(): void
-//    {
-//        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.json', __DIR__ . '/fixtures/nestedAfter.json', 'json');
-//        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResult.json');
-//        $this->assertEquals($expected, $diff);
-//    }
-//
-//    public function testGenDiffOfNestedYamlToJsonFormat(): void
-//    {
-//        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.yaml', __DIR__ . '/fixtures/nestedAfter.yaml', 'json');
-//        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResult.json');
-//        $this->assertEquals($expected, $diff);
-//    }
+
+    public function testGenDiffOfNestedJsonToJsonFormat(): void
+    {
+        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.json', __DIR__ . '/fixtures/nestedAfter.json', 'json');
+        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResult.json');
+        $this->assertEquals($expected, $diff);
+    }
+
+    public function testGenDiffOfNestedYamlToJsonFormat(): void
+    {
+        $diff = genDiff(__DIR__ . '/fixtures/nestedBefore.yaml', __DIR__ . '/fixtures/nestedAfter.yaml', 'json');
+        $expected = file_get_contents(__DIR__ . '/fixtures/nestedResult.json');
+        $this->assertEquals($expected, $diff);
+    }
 }
