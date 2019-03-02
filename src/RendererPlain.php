@@ -13,25 +13,25 @@ function renderPlain(array $data, array $keyChain = []): string
             $keyChain[] = $item['key'];
 
             switch ($item['type']) {
-                case STATE_UNCHANGED:
+                case UNCHANGED:
                     if (isset($item['children'])) {
                         $acc[] = renderPlain($item['children'], $keyChain);
                     }
 
                     break;
-                case STATE_CHANGED:
+                case CHANGED:
                     if (!isset($item['children'])) {
                         $keys = implode('.', $keyChain);
                         $acc[] = "Property '$keys' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
                             . PHP_EOL;
                     }
                     break;
-                case STATE_DELETED:
+                case DELETED:
                     $keys = implode('.', $keyChain);
                     $acc[] = "Property '$keys' was removed" . PHP_EOL;
 
                     break;
-                case STATE_ADDED:
+                case ADDED:
                     $value = isset($item['children']) ? 'complex value' : $item['newValue'];
                     $keys = implode('.', $keyChain);
                     $acc[] = "Property '$keys' was added with value: '$value'" . PHP_EOL;

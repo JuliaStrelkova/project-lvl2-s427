@@ -11,32 +11,29 @@ function renderPretty(array $data, int $level = 1): string
         $data,
         function ($acc, $item) use ($level) {
             switch ($item['type']) {
-                case (STATE_UNCHANGED):
-                    if (!isset($item['oldValue'])) {
+                case UNCHANGED:
+                    $acc = isset($item['children'])
+                        ? [
+                            $acc,
+                            renderIndentation($level),
+                            $item['key'],
+                            ': ',
+                            renderPretty($item['children'], $level + 1),
+                        ]
+                        : [$acc, renderIndentation($level), $item['key'], ': ', renderScalarValue($item['oldValue'])];
+
+                    return implode('', $acc) . PHP_EOL;
+
+                case CHANGED:
+                    if (isset($item['children'])) {
                         $acc = [
                             $acc,
                             renderIndentation($level),
                             $item['key'],
                             ': ',
                             renderPretty($item['children'], $level + 1),
-                            PHP_EOL,
                         ];
-
-                        return implode('', $acc);
-                    }
-
-                    $acc = [
-                        $acc,
-                        renderIndentation($level),
-                        $item['key'],
-                        ': ',
-                        renderScalarValue($item['oldValue']),
-                        PHP_EOL,
-                    ];
-
-                    return implode('', $acc);
-                case (STATE_CHANGED):
-                    if (isset($item['oldValue'])) {
+                    } else {
                         $acc = [
                             $acc,
                             renderIndentation($level, '  + '),
@@ -50,21 +47,11 @@ function renderPretty(array $data, int $level = 1): string
                             renderScalarValue($item['oldValue']),
                             PHP_EOL,
                         ];
-
-                        return implode('', $acc);
                     }
 
-                    $acc = [
-                        $acc,
-                        renderIndentation($level),
-                        $item['key'],
-                        ': ',
-                        renderPretty($item['children'], $level + 1),
-                    ];
-
                     return implode('', $acc);
-                case (STATE_DELETED):
-                    if (!isset($item['oldValue'])) {
+                case DELETED:
+                    if (isset($item['children'])) {
                         $acc = [
                             $acc,
                             renderIndentation($level, '  - '),
@@ -73,22 +60,20 @@ function renderPretty(array $data, int $level = 1): string
                             renderArray($item['children'], $level + 1),
                             PHP_EOL,
                         ];
-
-                        return implode('', $acc);
+                    } else {
+                        $acc = [
+                            $acc,
+                            renderIndentation($level, '  - '),
+                            $item['key'],
+                            ': ',
+                            renderScalarValue($item['oldValue']),
+                            PHP_EOL,
+                        ];
                     }
 
-                    $acc = [
-                        $acc,
-                        renderIndentation($level, '  - '),
-                        $item['key'],
-                        ': ',
-                        renderScalarValue($item['oldValue']),
-                        PHP_EOL,
-                    ];
-
                     return implode('', $acc);
-                case (STATE_ADDED):
-                    if (!isset($item['newValue'])) {
+                case ADDED:
+                    if (isset($item['children'])) {
                         $acc = [
                             $acc,
                             renderIndentation($level, '  + '),
@@ -97,18 +82,16 @@ function renderPretty(array $data, int $level = 1): string
                             renderArray($item['children'], $level + 1),
                             PHP_EOL,
                         ];
-
-                        return implode('', $acc);
+                    } else {
+                        $acc = [
+                            $acc,
+                            renderIndentation($level, '  + '),
+                            $item['key'],
+                            ': ',
+                            renderScalarValue($item['newValue']),
+                            PHP_EOL,
+                        ];
                     }
-
-                    $acc = [
-                        $acc,
-                        renderIndentation($level, '  + '),
-                        $item['key'],
-                        ': ',
-                        renderScalarValue($item['newValue']),
-                        PHP_EOL,
-                    ];
 
                     return implode('', $acc);
             }

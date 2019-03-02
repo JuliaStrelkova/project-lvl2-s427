@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
-const STATE_DELETED = 'deleted';
-const STATE_ADDED = 'added';
-const STATE_CHANGED = 'changed';
-const STATE_UNCHANGED = 'unchanged';
+const DELETED = 'deleted';
+const ADDED = 'added';
+const CHANGED = 'changed';
+const UNCHANGED = 'unchanged';
 
 function buildAst(array $firstDataSet, array $secondDataSet): array
 {
@@ -17,19 +17,19 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
 
             if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
                 if (is_array($firstDataSet[$key]) && ($firstDataSet[$key] === $secondDataSet[$key])) {
-                    return buildNode(STATE_UNCHANGED, $key, null, null, $firstDataSet[$key]);
+                    return buildNode(UNCHANGED, $key, null, null, $firstDataSet[$key]);
                 }
 
                 if ($firstDataSet[$key] === $secondDataSet[$key]) {
-                    return buildNode(STATE_UNCHANGED, $key, $firstDataSet[$key]);
+                    return buildNode(UNCHANGED, $key, $firstDataSet[$key]);
                 }
 
                 if (!is_array($firstDataSet[$key]) && !is_array($secondDataSet[$key])) {
-                    return buildNode(STATE_CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
+                    return buildNode(CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
                 }
 
                 return buildNode(
-                    STATE_UNCHANGED,
+                    UNCHANGED,
                     $key,
                     null,
                     null,
@@ -39,16 +39,16 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
 
             if (array_key_exists($key, $firstDataSet)) {
                 if (is_array($firstDataSet[$key])) {
-                    return buildNode(STATE_DELETED, $key, null, null, $firstDataSet[$key]);
+                    return buildNode(DELETED, $key, null, null, $firstDataSet[$key]);
                 }
 
-                return buildNode(STATE_DELETED, $key, $firstDataSet[$key]);
+                return buildNode(DELETED, $key, $firstDataSet[$key]);
             }
             if (is_array($secondDataSet[$key])) {
-                return buildNode(STATE_ADDED, $key, null, null, $secondDataSet[$key]);
+                return buildNode(ADDED, $key, null, null, $secondDataSet[$key]);
             }
 
-            return buildNode(STATE_ADDED, $key, null, $secondDataSet[$key]);
+            return buildNode(ADDED, $key, null, $secondDataSet[$key]);
         },
         $keysFirstAndSecondDataSet
     );
