@@ -5,63 +5,45 @@ namespace Gendiff;
 
 use RuntimeException;
 
-function renderPlain(?array $data): string
+function renderPlain(array $data, array $keyChain = []): string
 {
-    return array_reduce(
+    $rows = array_reduce(
         $data,
-        function (string $acc, array $item) {
-            if ($item['type'] === STATE_UNCHANGED && !isset($item['oldValue'])) {
-                $beginString = "Property '{$item['key']}.";
+        function ($acc, $item) use ($keyChain) {
+            $keyChain[] = $item['key'];
 
-                return $acc . array_reduce(
-                    $item['children'],
-                    function ($acc, $nestedItem) use ($beginString) {
-                        if ($nestedItem['type'] === STATE_CHANGED) {
-                            return "$acc$beginString{$nestedItem['key']}' was changed. " .
-                                "From '{$nestedItem['oldValue']}' to '{$nestedItem['newValue']}'" . PHP_EOL;
-                        }
-                        if ($nestedItem['type'] === STATE_DELETED) {
-                            return "$acc$beginString{$nestedItem['key']}' was removed" . PHP_EOL;
-                        }
-                        if ($nestedItem['type'] === STATE_ADDED && !isset($nestedItem['newValue'])) {
-                            return "$acc$beginString{$nestedItem['key']}' was added with value: 'complex value'"
-                                . PHP_EOL;
-                        }
-                        if ($nestedItem['type'] === STATE_ADDED) {
-                            return "$acc$beginString{$nestedItem['key']}' " .
-                                "was added with value: '{$nestedItem['newValue']}'"
-                                . PHP_EOL;
-                        }
-                        if ($nestedItem['type'] === STATE_UNCHANGED) {
-                            return (string) $acc;
-                        }
+            switch ($item['type']) {
+                case STATE_UNCHANGED:
+                    if (isset($item['children'])) {
+                        $acc[] = renderPlain($item['children'], $keyChain);
+                    }
 
-                            throw new RuntimeException('Unexpected state value');
-                    },
-                    ''
-                );
+                    break;
+                case STATE_CHANGED:
+                    if (!isset($item['children'])) {
+                        $keys = implode('.', $keyChain);
+                        $acc[] = "Property '$keys' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
+                            . PHP_EOL;
+                    }
+                    break;
+                case STATE_DELETED:
+                    $keys = implode('.', $keyChain);
+                    $acc[] = "Property '$keys' was removed" . PHP_EOL;
+
+                    break;
+                case STATE_ADDED:
+                    $value = isset($item['children']) ? 'complex value' : $item['newValue'];
+                    $keys = implode('.', $keyChain);
+                    $acc[] = "Property '$keys' was added with value: '$value'" . PHP_EOL;
+                    break;
+                default:
+                    throw new RuntimeException('Unexpected node type');
             }
 
-            if ($item['type'] === STATE_CHANGED) {
-                return $acc .
-                    "Property '{$item['key']}' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
-                    . PHP_EOL;
-            }
-            if ($item['type'] === STATE_DELETED) {
-                return $acc . "Property '{$item['key']}' was removed" . PHP_EOL;
-            }
-            if ($item['type'] === STATE_ADDED && !isset($item['newValue'])) {
-                return $acc . "Property '{$item['key']}' was added with value: 'complex value'" . PHP_EOL;
-            }
-            if ($item['type'] === STATE_ADDED) {
-                return $acc . "Property '{$item['key']}'"
-                    . "was added with value: '{$item['newValue']}'" . PHP_EOL;
-            }
-            if ($item['type'] === STATE_UNCHANGED) {
-                return '';
-            }
-            throw new RuntimeException('Unexpected state value');
+            return $acc;
         },
-        ''
+        []
     );
+
+    return implode('', $rows);
 }

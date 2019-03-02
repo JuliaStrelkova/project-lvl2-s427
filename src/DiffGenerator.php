@@ -10,20 +10,10 @@ function genDiff(string $pathToFile1, string $pathToFile2, string $format): stri
 {
     $firstDataSet = getDataSet($pathToFile1);
     $secondDataSet = getDataSet($pathToFile2);
+
     $ast = buildAst($firstDataSet, $secondDataSet);
 
     return render($ast, $format);
-}
-
-function render(array $ast, string $format): string
-{
-    if ($format === 'pretty') {
-        return renderPretty($ast);
-    }
-    if ($format === 'plain') {
-        return renderPlain($ast);
-    }
-    throw new RuntimeException('Unexpected data format');
 }
 
 function getDataSet(string $pathToFile)
@@ -31,17 +21,33 @@ function getDataSet(string $pathToFile)
     $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
     $data = file_get_contents($pathToFile);
 
-    return parser($data, $extension);
+    return parse($data, $extension);
 }
 
-function parser(string $data, string $format): array
+function render(array $ast, string $format): string
 {
-    if ($format === 'json') {
-        return json_decode($data, true);
+    switch ($format) {
+        case 'pretty':
+            return renderPretty($ast);
+
+        case 'plain':
+            return renderPlain($ast);
+
+        case 'json':
+            return json_encode($ast);
     }
 
-    if ($format === 'yaml') {
-        return Yaml::parse($data);
+    throw new RuntimeException('Unexpected data format');
+}
+
+function parse(string $data, string $format): array
+{
+    switch ($format) {
+        case 'json':
+            return json_decode($data, true);
+
+        case 'yaml':
+            return Yaml::parse($data);
     }
 
     throw new RuntimeException('Unexpected data format');

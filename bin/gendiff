@@ -26,6 +26,10 @@ Options:
 
 HELP;
 
-$args = Docopt::handle($doc, ['version' => 'Generate diff 0.1.0']);
+$args = Docopt::handle($doc, ['version' => 'Generate diff 0.6.0']);
 
-echo genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+try {
+    echo genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+} catch (Throwable $e) {
+    echo $e->getMessage();
+}
