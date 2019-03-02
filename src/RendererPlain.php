@@ -9,7 +9,7 @@ function renderPlain(array $data, array $keyChain = []): string
 {
     $rows = array_reduce(
         $data,
-        function ($acc, $item) use ($keyChain) {
+        function (array $acc, array $item) use ($keyChain) {
             $keyChain[] = $item['key'];
 
             switch ($item['type']) {

@@ -5,7 +5,7 @@ namespace Gendiff;
 
 use RuntimeException;
 
-function renderPretty(?array $data, int $level = 1): string
+function renderPretty(array $data, int $level = 1): string
 {
     $result = array_reduce(
         $data,
