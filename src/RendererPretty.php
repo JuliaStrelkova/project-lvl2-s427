@@ -5,116 +5,53 @@ namespace Gendiff;
 
 use RuntimeException;
 
-function renderPretty(array $data, int $level = 1): string
+function renderPretty(array $data, int $level = 0): string
 {
+    $indentation = renderIndentation($level);
+
     $result = array_reduce(
         $data,
-        function ($acc, $item) use ($level) {
-            switch ($item['type']) {
-                case UNCHANGED:
-                    $acc = isset($item['children'])
-                        ? [
-                            $acc,
-                            renderIndentation($level),
-                            $item['key'],
-                            ': ',
-                            renderPretty($item['children'], $level + 1),
-                        ]
-                        : [$acc, renderIndentation($level), $item['key'], ': ', renderScalarValue($item['oldValue'])];
+        function (string $acc, array $item) use ($level, $indentation) {
+            $old = renderValue($item['oldValue'], $level);
+            $new = renderValue($item['newValue'], $level);
 
-                    return implode('', $acc) . PHP_EOL;
+            switch ($item['type']) {
+                case NESTED:
+                    $renderedChildren = renderPretty($item['children'], $level + 1);
+
+                    return implode('', [$acc, $indentation, '    ', $item['key'], ': ', $renderedChildren, PHP_EOL]);
+
+                case UNCHANGED:
+                    return implode('', [$acc, $indentation, '    ', $item['key'], ': ', $old, PHP_EOL]);
 
                 case CHANGED:
-                    if (isset($item['children'])) {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level),
-                            $item['key'],
-                            ': ',
-                            renderPretty($item['children'], $level + 1),
-                        ];
-                    } else {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level, '  + '),
-                            $item['key'],
-                            ': ',
-                            renderScalarValue($item['newValue']),
-                            PHP_EOL,
-                            renderIndentation($level, '  - '),
-                            $item['key'],
-                            ': ',
-                            renderScalarValue($item['oldValue']),
-                            PHP_EOL,
-                        ];
-                    }
+                    $rowNew = implode('', [$indentation, '  + ', $item['key'], ': ', $new, PHP_EOL]);
+                    $rowOld = implode('', [$indentation, '  - ', $item['key'], ': ', $old, PHP_EOL]);
 
-                    return implode('', $acc);
-                case DELETED:
-                    if (isset($item['children'])) {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level, '  - '),
-                            $item['key'],
-                            ': ',
-                            renderArray($item['children'], $level + 1),
-                            PHP_EOL,
-                        ];
-                    } else {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level, '  - '),
-                            $item['key'],
-                            ': ',
-                            renderScalarValue($item['oldValue']),
-                            PHP_EOL,
-                        ];
-                    }
+                    return implode('', [$acc, $rowNew, $rowOld]);
 
-                    return implode('', $acc);
-                case ADDED:
-                    if (isset($item['children'])) {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level, '  + '),
-                            $item['key'],
-                            ': ',
-                            renderArray($item['children'], $level + 1),
-                            PHP_EOL,
-                        ];
-                    } else {
-                        $acc = [
-                            $acc,
-                            renderIndentation($level, '  + '),
-                            $item['key'],
-                            ': ',
-                            renderScalarValue($item['newValue']),
-                            PHP_EOL,
-                        ];
-                    }
+                case $item['type'] === DELETED:
+                    return implode('', [$acc, $indentation, '  - ', $item['key'], ': ', $old, PHP_EOL]);
 
-                    return implode('', $acc);
+                case $item['type'] === ADDED:
+                    return implode('', [$acc, $indentation, '  + ', $item['key'], ': ', $new, PHP_EOL]);
             }
             throw new RuntimeException('Unexpected state value');
         },
         ''
     );
 
-    return implode(
-        '',
-        [
-            '{',
-            PHP_EOL,
-            $result,
-            renderIndentation($level, ''),
-            '}',
-        ]
-    );
+    return implode('', ['{', PHP_EOL, $result, $indentation, '}',]);
 }
 
-function renderIndentation(int $level, string $suffix = '    '): string
+function renderIndentation(int $level): string
 {
-    return str_repeat('    ', $level - 1) . $suffix;
+    return str_repeat('    ', $level);
+}
+
+function renderValue($value, int $level): string
+{
+    return is_array($value) ? renderArray($value, $level) : renderScalarValue($value);
 }
 
 function renderScalarValue($value): string
@@ -137,12 +74,12 @@ function renderArray(array $data, int $level): string
                 $acc,
                 '{',
                 PHP_EOL,
-                renderIndentation($level),
+                renderIndentation($level + 2),
                 $key,
                 ': ',
                 $data[$key],
                 PHP_EOL,
-                renderIndentation($level - 1),
+                renderIndentation($level + 1),
                 '}',
             ];
 

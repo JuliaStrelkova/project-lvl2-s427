@@ -7,6 +7,7 @@ const DELETED = 'deleted';
 const ADDED = 'added';
 const CHANGED = 'changed';
 const UNCHANGED = 'unchanged';
+const NESTED = 'nested';
 
 function buildAst(array $firstDataSet, array $secondDataSet): array
 {
@@ -16,9 +17,9 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
         function (string $key) use ($firstDataSet, $secondDataSet) {
 
             if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
-                if (is_array($firstDataSet[$key])) {
+                if (is_array($firstDataSet[$key]) && is_array($secondDataSet[$key])) {
                     return buildNode(
-                        UNCHANGED,
+                        NESTED,
                         $key,
                         null,
                         null,
@@ -34,15 +35,7 @@ function buildAst(array $firstDataSet, array $secondDataSet): array
             }
 
             if (!array_key_exists($key, $secondDataSet)) {
-                if (is_array($firstDataSet[$key])) {
-                    return buildNode(DELETED, $key, null, null, $firstDataSet[$key]);
-                }
-
                 return buildNode(DELETED, $key, $firstDataSet[$key]);
-            }
-
-            if (is_array($secondDataSet[$key])) {
-                return buildNode(ADDED, $key, null, null, $secondDataSet[$key]);
             }
 
             return buildNode(ADDED, $key, null, $secondDataSet[$key]);

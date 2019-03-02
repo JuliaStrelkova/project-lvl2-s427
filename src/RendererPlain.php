@@ -13,18 +13,16 @@ function renderPlain(array $data, array $keyChain = []): string
             $keyChain[] = $item['key'];
 
             switch ($item['type']) {
-                case UNCHANGED:
-                    if (isset($item['children'])) {
-                        $acc[] = renderPlain($item['children'], $keyChain);
-                    }
+                case NESTED:
+                    $acc[] = renderPlain($item['children'], $keyChain);
 
                     break;
+                case UNCHANGED:
+                    break;
                 case CHANGED:
-                    if (!isset($item['children'])) {
-                        $keys = implode('.', $keyChain);
-                        $acc[] = "Property '$keys' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
-                            . PHP_EOL;
-                    }
+                    $keys = implode('.', $keyChain);
+                    $acc[] = "Property '$keys' was changed. From '{$item['oldValue']}' to '{$item['newValue']}'"
+                        . PHP_EOL;
                     break;
                 case DELETED:
                     $keys = implode('.', $keyChain);
@@ -32,7 +30,7 @@ function renderPlain(array $data, array $keyChain = []): string
 
                     break;
                 case ADDED:
-                    $value = isset($item['children']) ? 'complex value' : $item['newValue'];
+                    $value = is_array($item['newValue']) ? 'complex value' : $item['newValue'];
                     $keys = implode('.', $keyChain);
                     $acc[] = "Property '$keys' was added with value: '$value'" . PHP_EOL;
                     break;
