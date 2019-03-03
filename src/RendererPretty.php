@@ -30,10 +30,10 @@ function renderPretty(array $data, int $level = 0): string
 
                     return implode('', [$acc, $rowNew, $rowOld]);
 
-                case $item['type'] === DELETED:
+                case DELETED:
                     return implode('', [$acc, $indentation, '  - ', $item['key'], ': ', $old, PHP_EOL]);
 
-                case $item['type'] === ADDED:
+                case ADDED:
                     return implode('', [$acc, $indentation, '  + ', $item['key'], ': ', $new, PHP_EOL]);
             }
             throw new RuntimeException('Unexpected state value');
