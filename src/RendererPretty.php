@@ -12,8 +12,8 @@ function renderPretty(array $data, int $level = 0): string
     $result = array_reduce(
         $data,
         function (string $acc, array $item) use ($level, $indentation) {
-            $old = renderValue($item['oldValue'], $level);
-            $new = renderValue($item['newValue'], $level);
+            $oldRenderedValue = renderValue($item['oldValue'], $level);
+            $newRenderedValue = renderValue($item['newValue'], $level);
 
             switch ($item['type']) {
                 case NESTED:
@@ -22,19 +22,19 @@ function renderPretty(array $data, int $level = 0): string
                     return implode('', [$acc, $indentation, '    ', $item['key'], ': ', $renderedChildren, PHP_EOL]);
 
                 case UNCHANGED:
-                    return implode('', [$acc, $indentation, '    ', $item['key'], ': ', $old, PHP_EOL]);
+                    return implode('', [$acc, $indentation, '    ', $item['key'], ': ', $oldRenderedValue, PHP_EOL]);
 
                 case CHANGED:
-                    $rowNew = implode('', [$indentation, '  + ', $item['key'], ': ', $new, PHP_EOL]);
-                    $rowOld = implode('', [$indentation, '  - ', $item['key'], ': ', $old, PHP_EOL]);
+                    $rowNew = implode('', [$indentation, '  + ', $item['key'], ': ', $newRenderedValue, PHP_EOL]);
+                    $rowOld = implode('', [$indentation, '  - ', $item['key'], ': ', $oldRenderedValue, PHP_EOL]);
 
                     return implode('', [$acc, $rowNew, $rowOld]);
 
                 case DELETED:
-                    return implode('', [$acc, $indentation, '  - ', $item['key'], ': ', $old, PHP_EOL]);
+                    return implode('', [$acc, $indentation, '  - ', $item['key'], ': ', $oldRenderedValue, PHP_EOL]);
 
                 case ADDED:
-                    return implode('', [$acc, $indentation, '  + ', $item['key'], ': ', $new, PHP_EOL]);
+                    return implode('', [$acc, $indentation, '  + ', $item['key'], ': ', $newRenderedValue, PHP_EOL]);
             }
             throw new RuntimeException('Unexpected state value');
         },
