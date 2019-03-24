@@ -3,52 +3,29 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
-use RuntimeException;
-use Symfony\Component\Yaml\Yaml;
+use Gendiff\Parser\Parser;
+use Gendiff\Renderer\Renderer;
 
-function genDiff(string $pathToFile1, string $pathToFile2, string $format): string
+class DiffGenerator
 {
-    $firstDataSet = getDataSet($pathToFile1);
-    $secondDataSet = getDataSet($pathToFile2);
+    private $astBuilder;
+    private $parser;
+    private $renderer;
 
-    $ast = buildAst($firstDataSet, $secondDataSet);
-
-    return render($ast, $format);
-}
-
-function getDataSet(string $pathToFile)
-{
-    $extension = pathinfo($pathToFile, PATHINFO_EXTENSION);
-    $data = file_get_contents($pathToFile);
-
-    return parse($data, $extension);
-}
-
-function render(array $ast, string $format): string
-{
-    switch ($format) {
-        case 'pretty':
-            return renderPretty($ast);
-
-        case 'plain':
-            return renderPlain($ast);
-
-        case 'json':
-            return json_encode($ast);
+    public function __construct(ASTBuilder $ASTBuilder, Parser $parser, Renderer $renderer)
+    {
+        $this->astBuilder = $ASTBuilder;
+        $this->parser = $parser;
+        $this->renderer = $renderer;
     }
 
-    throw new RuntimeException('Unexpected data format');
-}
+    public function generateDiff(string $pathToFile1, string $pathToFile2): string
+    {
+        $firstDataSet = $this->parser->parse($pathToFile1);
+        $secondDataSet = $this->parser->parse($pathToFile2);
 
-function parse(string $data, string $format): array
-{
-    switch ($format) {
-        case 'json':
-            return json_decode($data, true);
+        $ast = $this->astBuilder->buildAst($firstDataSet, $secondDataSet);
 
-        case 'yaml':
-            return Yaml::parse($data);
+        return $this->renderer->render($ast);
     }
-
-    throw new RuntimeException('Unexpected data format');
 }

@@ -3,63 +3,66 @@ declare(strict_types=1);
 
 namespace Gendiff;
 
-const DELETED = 'deleted';
-const ADDED = 'added';
-const CHANGED = 'changed';
-const UNCHANGED = 'unchanged';
-const NESTED = 'nested';
-
-function buildAst(array $firstDataSet, array $secondDataSet): array
+class ASTBuilder
 {
-    $keysFirstAndSecondDataSet = getUniqueKeys($firstDataSet, $secondDataSet);
+    public const DELETED = 'deleted';
+    public const ADDED = 'added';
+    public const CHANGED = 'changed';
+    public const UNCHANGED = 'unchanged';
+    public const NESTED = 'nested';
 
-    return array_map(
-        function (string $key) use ($firstDataSet, $secondDataSet) {
+    public function buildAst(array $firstDataSet, array $secondDataSet): array
+    {
+        $keysFirstAndSecondDataSet = $this->getUniqueKeys($firstDataSet, $secondDataSet);
 
-            if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
-                if (is_array($firstDataSet[$key]) && is_array($secondDataSet[$key])) {
-                    return buildNode(
-                        NESTED,
-                        $key,
-                        null,
-                        null,
-                        buildAst($firstDataSet[$key], $secondDataSet[$key])
-                    );
+        return array_map(
+            function (string $key) use ($firstDataSet, $secondDataSet) {
+
+                if (array_key_exists($key, $firstDataSet) && array_key_exists($key, $secondDataSet)) {
+                    if (is_array($firstDataSet[$key]) && is_array($secondDataSet[$key])) {
+                        return $this->buildNode(
+                            self::NESTED,
+                            $key,
+                            null,
+                            null,
+                            $this->buildAst($firstDataSet[$key], $secondDataSet[$key])
+                        );
+                    }
+
+                    if ($firstDataSet[$key] === $secondDataSet[$key]) {
+                        return $this->buildNode(self::UNCHANGED, $key, $firstDataSet[$key]);
+                    }
+
+                    return $this->buildNode(self::CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
                 }
 
-                if ($firstDataSet[$key] === $secondDataSet[$key]) {
-                    return buildNode(UNCHANGED, $key, $firstDataSet[$key]);
+                if (!array_key_exists($key, $secondDataSet)) {
+                    return $this->buildNode(self::DELETED, $key, $firstDataSet[$key]);
                 }
 
-                return buildNode(CHANGED, $key, $firstDataSet[$key], $secondDataSet[$key]);
-            }
+                return $this->buildNode(self::ADDED, $key, null, $secondDataSet[$key]);
+            },
+            $keysFirstAndSecondDataSet
+        );
+    }
 
-            if (!array_key_exists($key, $secondDataSet)) {
-                return buildNode(DELETED, $key, $firstDataSet[$key]);
-            }
+    private function buildNode(string $type, string $key, $oldValue = null, $newValue = null, $children = null): array
+    {
+        return [
+            'type' => $type,
+            'key' => $key,
+            'newValue' => $newValue,
+            'oldValue' => $oldValue,
+            'children' => $children,
+        ];
+    }
 
-            return buildNode(ADDED, $key, null, $secondDataSet[$key]);
-        },
-        $keysFirstAndSecondDataSet
-    );
-}
-
-function buildNode(string $type, string $key, $oldValue = null, $newValue = null, $children = null): array
-{
-    return [
-        'type' => $type,
-        'key' => $key,
-        'newValue' => $newValue,
-        'oldValue' => $oldValue,
-        'children' => $children,
-    ];
-}
-
-function getUniqueKeys(array $firstDataSet, array $secondDataSet): array
-{
-    return array_values(
-        array_unique(
-            array_merge(array_keys($firstDataSet), array_keys($secondDataSet))
-        )
-    );
+    private function getUniqueKeys(array $firstDataSet, array $secondDataSet): array
+    {
+        return array_values(
+            array_unique(
+                array_merge(array_keys($firstDataSet), array_keys($secondDataSet))
+            )
+        );
+    }
 }

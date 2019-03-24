@@ -30,13 +30,7 @@
   "autoload": {
     "psr-4": {
       "Gendiff\\": "src"
-    },
-    "files": [
-      "src/DiffGenerator.php",
-      "src/ASTBuilder.php",
-      "src/RendererPretty.php",
-      "src/RendererPlain.php"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {

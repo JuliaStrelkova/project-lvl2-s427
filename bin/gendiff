@@ -2,10 +2,13 @@
 
 <?php
 
-use function Gendiff\genDiff;
+use Gendiff\ASTBuilder;
+use  Gendiff\DiffGenerator;
+use Gendiff\Parser\Parser;
+use Gendiff\Renderer\RendererFactory;
 
-$autoloadPath1 = __DIR__.'/../../../autoload.php';
-$autoloadPath2 = __DIR__.'/../vendor/autoload.php';
+$autoloadPath1 = __DIR__ . '/../../../autoload.php';
+$autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
 
 if (file_exists($autoloadPath1)) {
     require_once $autoloadPath1;
@@ -29,7 +32,13 @@ HELP;
 $args = Docopt::handle($doc, ['version' => 'Generate diff 0.6.0']);
 
 try {
-    echo genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+    $diffGenerator = new DiffGenerator(
+        new ASTBuilder(),
+        new Parser(),
+        RendererFactory::getRenderer($args['--format'])
+    );
+
+    echo $diffGenerator->generateDiff($args['<firstFile>'], $args['<secondFile>']);
 } catch (Throwable $e) {
     echo $e->getMessage();
 }
