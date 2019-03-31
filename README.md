@@ -2,6 +2,91 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8332fd0067c294821851/test_coverage)](https://codeclimate.com/github/JuliaStrelkova/project-lvl2-s427/test_coverage)
 [![Build Status](https://travis-ci.org/JuliaStrelkova/project-lvl1-s252.svg?branch=master)](https://travis-ci.org/JuliaStrelkova/project-lvl2-s427)
 
+# Проект "Вычислитель отличий"
+
+## Описание
+В рамках данного проекта необходимо реализовать утилиту для поиска отличий в конфигурационных файлах.
+
+## Возможности утилиты:
+
+- Поддержка разных форматов
+- Генерация отчета в виде plain text, pretty и json
+
+##Пример использования:
+
+```
+$ gendiff --format pretty first.json second.json
+
+{
+    common: {
+        setting1: Value 1
+      - setting2: 200
+        setting3: true
+      - setting6: {
+            key: value
+        }
+      + setting4: blah blah
+      + setting5: {
+            key5: value5
+        }
+    }
+    group1: {
+      + baz: bars
+      - baz: bas
+        foo: bar
+    }
+  - group2: {
+        abc: 12345
+    }
+  + group3: {
+        fee: 100500
+    }
+}
+```
+
+before.json:
+```
+{
+  "common": {
+    "setting1": "Value 1",
+    "setting2": "200",
+    "setting3": true,
+    "setting6": {
+      "key": "value"
+    }
+  },
+  "group1": {
+    "baz": "bas",
+    "foo": "bar"
+  },
+  "group2": {
+    "abc": "12345"
+  }
+}
+```
+after.json
+```
+{
+  "common": {
+    "setting1": "Value 1",
+    "setting3": true,
+    "setting4": "blah blah",
+    "setting5": {
+      "key5": "value5"
+    }
+  },
+
+  "group1": {
+    "foo": "bar",
+    "baz": "bars"
+  },
+
+  "group3": {
+    "fee": "100500"
+  }
+}
+```
+
 step 1: https://asciinema.org/a/8x4wDjVTg7Cv9LTkpDuuXmDvs
 
 step 2: https://asciinema.org/a/zRXFVy4E9RdNhknXlkRS7TBPe
